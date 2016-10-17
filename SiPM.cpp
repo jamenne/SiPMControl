@@ -29,24 +29,66 @@ using namespace std;
 //---------------------SiPM class---------------------//
 
 // Constructor
-SiPM::SiPM(SourceMeter &SourceM, int smuX, MultiMeter &MultiM):_SourceM(SourceM), _smuX(smuX), _MultiM(MultiM)
+SiPM::SiPM(double biasVoltage, SourceMeter &SourceM, int smuX, Pelztier &Peltier):_SourceM(SourceM), _smuX(smuX), _Peltier(Peltier)
 {
-	
+	_biasVoltage=biasVoltage;
+
 };
 
 //Destructor
 SiPM::~SiPM(){};
 
-void SiPM::Initialize(int masterUD, int SourceMeterPad, int MultiMeterPad, string voltagelimit){
+// Init of Peltier and SourceMeter outside of SiPM Init.
+void SiPM::Initialize(double biasVoltage, string currentlimit){
 
-	_SourceM.Initialize(masterUD, SourceMeterPad);
-	_SourceM.SelectCurrentFunction(this->_smuX);
-	_SourceM.SetVoltageLimit(this->_smuX,voltagelimit);
-	_SourceM.SetOutputOnOff(this->_smuX,true);
+	this->_SourceM.SelectVoltageFunction(this->_smuX);
+	this->_SourceM.SetCurrentLimit(this->_smuX,currentlimit);
+	this->_SourceM.SetOutputOnOff(this->_smuX,true);
 
-	_MultiM.Initialize(masterUD, MultiMeterPad);
-	_MultiM.Set4WireFunction();
-	_MultiM.SetAutorange4Wire();
-	_MultiM.SetTriggerContinously();
-
+	this->_biasVoltage = biasVoltage;
 }
+
+SourceMeter SiPM::GetSourceMeter(){
+
+	return this->_SourceM;
+}
+
+Pelztier SiPM::GetPelztier(){
+
+	return this->_Peltier;
+}
+
+double SiPM::GetBiasVoltage(){
+
+	return this->_biasVoltage;
+}
+
+void SiPM::RampToBiasVoltage(){
+
+	string biasVolt;
+	this->_SourceM.SetSourceVoltage(this->_smuX, biasVolt);
+}
+
+vector<double> SiPM::MeasureIV(){
+
+	return this->_SourceM.MeasureIV(this->_smuX);
+}
+
+double SiPM::MeasureI(){
+
+	return this->_SourceM.MeasureI(this->_smuX);
+}
+
+double SiPM::MeasureV(){
+
+	return this->_SourceM.MeasureV(this->_smuX);
+}
+
+
+
+
+
+
+
+
+

@@ -8,29 +8,39 @@ Created by Janine Müller on 14.10.2016
 
 */
 
-#ifndef ____Pelztier__
-#define ____Pelztier__
+#ifndef ____SiPM__
+#define ____SiPM__
 
 #include "../SourceMeter/SourceMeter.h"
+#include "../PelztierControl/PelztierControl.h"
 #include "../MultiMeter/MultiMeter.h"
 
 using namespace std;
 
 
-class Pelztier
+class SiPM
 {
 
 public:
-	Pelztier(SourceMeter &SourceM, int smuX, MultiMeter &MultiM);
-	~Pelztier();
-	void Initialize(int masterUD, int SourceMeterPad, int MultiMeterPad, string voltagelimit);
+	SiPM(double biasVoltage, SourceMeter &SourceM, int smuX, Pelztier &Peltier);
+	~SiPM();
+	SourceMeter GetSourceMeter();
+	Pelztier GetPelztier();
+	double GetBiasVoltage();
+
+	void Initialize(double biasVoltage, string currentlimit);
+	void RampToBiasVoltage();
+
+	vector<double> MeasureIV();
+	double MeasureI();
+	double MeasureV();
 
 private:
 
-	SourceMeter _SourceM; // SourceMeter as current source for peltier
+	double _biasVoltage;
+	SourceMeter _SourceM; // SourceMeter as voltage source for SiPM
 	int _smuX; // which Output of SourceMeter
-	MultiMeter _MultiM; // MultiMeter for 4 wire measurement of resistance
-
+	Pelztier _Peltier; // Peltier element of SiPM
 
 };
 
