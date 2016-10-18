@@ -33,10 +33,17 @@ int main(int argc, char const *argv[])
 	// masterUD, SourceMeterPad, MultiMeterPad, voltagelimit
 	Peltier.Initialize(masterUD, 18, "0.6");
 
-	double biasVoltage = 50; //Volt
+	double biasVoltage = 1; //Volt
 
 	SiPM Ham(biasVoltage, SourceM, 2, Peltier);
 
+	Ham.Initialize(biasVoltage, "0.001");
+
+	Ham.RampToBiasVoltage();
+
+	Ham.Close();
+
+	Peltier.Close();
 
 
 	

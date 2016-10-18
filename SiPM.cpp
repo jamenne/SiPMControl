@@ -21,6 +21,7 @@ Created by Janine Müller on 14.10.2016
 #include "../PelztierControl/PelztierControl.h"
 #include "../MultiMeter/MultiMeter.h"
 #include "../SourceMeter/SourceMeter.h"
+#include "LogSiPM.h"
 
 #include "SiPM.h"
 
@@ -36,7 +37,9 @@ SiPM::SiPM(double biasVoltage, SourceMeter &SourceM, int smuX, Pelztier &Peltier
 };
 
 //Destructor
-SiPM::~SiPM(){};
+SiPM::~SiPM(){
+
+};
 
 // Init of Peltier and SourceMeter outside of SiPM Init.
 void SiPM::Initialize(double biasVoltage, string currentlimit){
@@ -46,6 +49,13 @@ void SiPM::Initialize(double biasVoltage, string currentlimit){
 	this->_SourceM.SetOutputOnOff(this->_smuX,true);
 
 	this->_biasVoltage = biasVoltage;
+}
+
+void SiPM::Close(){
+	this->_SourceM.SetSourceVoltage(this->_smuX, "0");
+	this->_SourceM.SetOutputOnOff(this->_smuX,false);
+	this->~SiPM();
+
 }
 
 SourceMeter SiPM::GetSourceMeter(){
@@ -65,13 +75,51 @@ double SiPM::GetBiasVoltage(){
 
 void SiPM::RampToBiasVoltage(){
 
-	string biasVolt;
-	this->_SourceM.SetSourceVoltage(this->_smuX, biasVolt);
+	stringstream voltage;
+
+	double actualvoltage = this->MeasureV();
+
+	while(_biasVoltage != actualvoltage){
+
+		if(_biasVoltage - actualvoltage > 5){
+
+			voltage << actualvoltage+5;
+			this->_SourceM.SetSourceVoltage(this->_smuX, voltage.str());
+			voltage.str();
+		}
+
+		else if (_biasVoltage - actualvoltage < -5){
+
+			voltage << actualvoltage-5;
+			this->_SourceM.SetSourceVoltage(this->_smuX, voltage.str());
+			voltage.str();
+		}
+
+		else{
+
+			if (_biasVoltage != actualvoltage)
+			{
+				voltage << _biasVoltage;
+				this->_SourceM.SetSourceVoltage(this->_smuX, voltage.str());
+				voltage.str();
+				actualvoltage = this->MeasureV();
+				break;
+			}
+
+		}
+
+		sleep(2);
+		actualvoltage = this->MeasureV();
+	}
+
 }
 
 vector<double> SiPM::MeasureIV(){
 
-	return this->_SourceM.MeasureIV(this->_smuX);
+	vector<double> res = this->_SourceM.MeasureIV(this->_smuX);
+	this->_Logfile.Write(res);
+	
+	return res;
 }
 
 double SiPM::MeasureI(){
@@ -83,7 +131,6 @@ double SiPM::MeasureV(){
 
 	return this->_SourceM.MeasureV(this->_smuX);
 }
-
 
 
 
