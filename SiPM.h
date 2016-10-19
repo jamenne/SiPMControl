@@ -14,9 +14,7 @@ Created by Janine Müller on 14.10.2016
 #include "../SourceMeter/SourceMeter.h"
 #include "../PelztierControl/PelztierControl.h"
 #include "../MultiMeter/MultiMeter.h"
-#include "LogSiPM.h"
-
-using namespace std;
+#include "../LogFileDev/LogDev.h"
 
 
 class SiPM
@@ -26,11 +24,11 @@ public:
 	SiPM(double biasVoltage, SourceMeter &SourceM, int smuX, Pelztier &Peltier);
 	~SiPM();
 	void Close();
-	SourceMeter GetSourceMeter();
-	Pelztier GetPelztier();
+	SourceMeter& GetSourceMeter();
+	Pelztier& GetPelztier();
 	double GetBiasVoltage();
 
-	void Initialize(double biasVoltage, string currentlimit);
+	void Initialize(double biasVoltage, const std::string currentlimit);
 	void RampToBiasVoltage();
 
 	vector<double> MeasureIV();
@@ -40,10 +38,10 @@ public:
 private:
 
 	double _biasVoltage;
-	SourceMeter _SourceM; // SourceMeter as voltage source for SiPM
+	SourceMeter& _SourceM; // SourceMeter as voltage source for SiPM
 	int _smuX; // which Output of SourceMeter
-	Pelztier _Peltier; // Peltier element of SiPM
-	LogSiPM _Logfile;
+	Pelztier& _Peltier; // Peltier element of SiPM
+	LogDev _LogFile;
 
 };
 

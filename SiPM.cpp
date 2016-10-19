@@ -18,11 +18,6 @@ Created by Janine Müller on 14.10.2016
 #include <sstream>
 #include <cmath>
 
-#include "../PelztierControl/PelztierControl.h"
-#include "../MultiMeter/MultiMeter.h"
-#include "../SourceMeter/SourceMeter.h"
-#include "LogSiPM.h"
-
 #include "SiPM.h"
 
 using namespace std;
@@ -30,9 +25,14 @@ using namespace std;
 //---------------------SiPM class---------------------//
 
 // Constructor
-SiPM::SiPM(double biasVoltage, SourceMeter &SourceM, int smuX, Pelztier &Peltier):_SourceM(SourceM), _smuX(smuX), _Peltier(Peltier)
+SiPM::SiPM(double biasVoltage, SourceMeter &SourceM, int smuX, Pelztier &Peltier) :
+	_biasVoltage(biasVoltage),
+	_SourceM(SourceM), 
+	_smuX(smuX), 
+	_Peltier(Peltier),
+	_LogFile()
 {
-	_biasVoltage=biasVoltage;
+
 
 };
 
@@ -42,28 +42,29 @@ SiPM::~SiPM(){
 };
 
 // Init of Peltier and SourceMeter outside of SiPM Init.
-void SiPM::Initialize(double biasVoltage, string currentlimit){
+void SiPM::Initialize(double biasVoltage, const string currentlimit){
 
 	this->_SourceM.SelectVoltageFunction(this->_smuX);
 	this->_SourceM.SetCurrentLimit(this->_smuX,currentlimit);
 	this->_SourceM.SetOutputOnOff(this->_smuX,true);
 
 	this->_biasVoltage = biasVoltage;
+	this->_LogFile.Initialize("SiPM");
+	this->_LogFile.WriteString("date\tcurrent\tvoltage");
 }
 
 void SiPM::Close(){
 	this->_SourceM.SetSourceVoltage(this->_smuX, "0");
 	this->_SourceM.SetOutputOnOff(this->_smuX,false);
-	this->~SiPM();
 
 }
 
-SourceMeter SiPM::GetSourceMeter(){
+SourceMeter& SiPM::GetSourceMeter(){
 
 	return this->_SourceM;
 }
 
-Pelztier SiPM::GetPelztier(){
+Pelztier& SiPM::GetPelztier(){
 
 	return this->_Peltier;
 }
@@ -85,14 +86,14 @@ void SiPM::RampToBiasVoltage(){
 
 			voltage << actualvoltage+5;
 			this->_SourceM.SetSourceVoltage(this->_smuX, voltage.str());
-			voltage.str();
+			voltage.str("");
 		}
 
 		else if (_biasVoltage - actualvoltage < -5){
 
 			voltage << actualvoltage-5;
 			this->_SourceM.SetSourceVoltage(this->_smuX, voltage.str());
-			voltage.str();
+			voltage.str("");
 		}
 
 		else{
@@ -101,7 +102,7 @@ void SiPM::RampToBiasVoltage(){
 			{
 				voltage << _biasVoltage;
 				this->_SourceM.SetSourceVoltage(this->_smuX, voltage.str());
-				voltage.str();
+				voltage.str("");
 				actualvoltage = this->MeasureV();
 				break;
 			}
@@ -117,7 +118,8 @@ void SiPM::RampToBiasVoltage(){
 vector<double> SiPM::MeasureIV(){
 
 	vector<double> res = this->_SourceM.MeasureIV(this->_smuX);
-	this->_Logfile.Write(res);
+	double temp = this->_Peltier.GetTemperature();
+	this->_LogFile.WriteDoubleAndVector(temp, res);
 	
 	return res;
 }
