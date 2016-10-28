@@ -26,10 +26,15 @@ public:
 	void Close();
 	SourceMeter& GetSourceMeter();
 	Pelztier& GetPelztier();
+	LogDev& GetLogFile();
 	double GetBiasVoltage();
 
 	void Initialize(double biasVoltage, const std::string currentlimit);
+	void RampToVoltage(double ramp_volt);
 	void RampToBiasVoltage();
+	void RampDownVoltage();
+
+	void SetSourceVoltage(double set_voltage);
 
 	vector<double> MeasureIV();
 	double MeasureI();
