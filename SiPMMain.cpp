@@ -314,8 +314,8 @@ int main(int argc, char const *argv[])
 	double current1 = 0;
 	double current2 = 0;
 
-	int meas_timer = -5*60; // wait 5 min for reaching temperature
-	int Sr90_timer =-5*60; // wait 5 min for reaching temperature
+	int meas_timer = 0; // wait 5 min for reaching temperature
+	int Sr90_timer =-3*60; // wait 5 min for reaching temperature
 
 	do{
 
@@ -329,7 +329,7 @@ int main(int argc, char const *argv[])
 			meas_timer = 0;
 		}		
 
-		if (Sr90_timer == 60) // every minute new logfile and move Sr90!
+		if (Sr90_timer == 10) // every 10s new logfile and move Sr90!
 		{
 			stringstream ss;			
 
