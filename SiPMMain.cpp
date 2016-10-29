@@ -148,74 +148,74 @@ int main(int argc, char const *argv[])
 	
 	//-------------------Current Measurement loop----------------------//
 
-	Ham1.RampToBiasVoltage();
-	Ham2.RampToBiasVoltage();
+	// Ham1.RampToBiasVoltage();
+	// Ham2.RampToBiasVoltage();
 
 
-	vector<double> measure1(2,0);
-	vector<double> measure2(2,0);
+	// vector<double> measure1(2,0);
+	// vector<double> measure2(2,0);
 
-	// variables for the temperature control of the peltier element
-	double temp_target1 = 5;
-	double temp_target2 = 5;
+	// // variables for the temperature control of the peltier element
+	// double temp_target1 = 5;
+	// double temp_target2 = 5;
 
-	int index1 = 0;
-	int index2 = 0;
+	// int index1 = 0;
+	// int index2 = 0;
 
-	double integral1 = 0;
-	double integral2 = 0;
+	// double integral1 = 0;
+	// double integral2 = 0;
 
-	vector<double> TempDiff1(5,0);
-	vector<double> TempDiff2(5,0);
+	// vector<double> TempDiff1(5,0);
+	// vector<double> TempDiff2(5,0);
 
-	double current1 = 0;
-	double current2 = 0;
+	// double current1 = 0;
+	// double current2 = 0;
 
-	int meas_timer = 0;
-	int logfile_timer = 0;
+	// int meas_timer = 0;
+	// int logfile_timer = 0;
 
-	do{
+	// do{
 
-		Peltier1.OneTempControl(TempDiff1, integral1, index1, current1, temp_target1);
-		Peltier2.OneTempControl(TempDiff2, integral2, index2, current2, temp_target2);
+	// 	Peltier1.OneTempControl(TempDiff1, integral1, index1, current1, temp_target1);
+	// 	Peltier2.OneTempControl(TempDiff2, integral2, index2, current2, temp_target2);
 
-		if (meas_timer == 1) // sleep 1 sec * 60 = measure IV every minute
-		{
-			measure1 = Ham1.MeasureIV();
-			measure2 = Ham2.MeasureIV();
-			meas_timer = 0;
-		}		
+	// 	if (meas_timer == 1) // sleep 1 sec * 60 = measure IV every minute
+	// 	{
+	// 		measure1 = Ham1.MeasureIV();
+	// 		measure2 = Ham2.MeasureIV();
+	// 		meas_timer = 0;
+	// 	}		
 
-		if (logfile_timer == 45*60*24) // 60*60*24 every day a new logfile
-		{
-			stringstream ss;
+	// 	if (logfile_timer == 45*60*24) // 60*60*24 every day a new logfile
+	// 	{
+	// 		stringstream ss;
 
-			ss << "PelztierControl_" << Peltier1.GetSourceMeterChannel();
-			Peltier1.GetLogFile().Initialize(ss.str().c_str());
-			ss.str("");
-			Ham1.GetSourceMeter().GetLogFile().Initialize("SourceMeterSiPM");
+	// 		ss << "PelztierControl_" << Peltier1.GetSourceMeterChannel();
+	// 		Peltier1.GetLogFile().Initialize(ss.str().c_str());
+	// 		ss.str("");
+	// 		Ham1.GetSourceMeter().GetLogFile().Initialize("SourceMeterSiPM");
 
-			ss << "PelztierControl_" << Peltier2.GetSourceMeterChannel();
-			Peltier2.GetLogFile().Initialize(ss.str().c_str());
-			ss.str("");			
+	// 		ss << "PelztierControl_" << Peltier2.GetSourceMeterChannel();
+	// 		Peltier2.GetLogFile().Initialize(ss.str().c_str());
+	// 		ss.str("");			
 
-			ss << "SiPM_" << Ham1.GetSourceMeterChannel();
-			Ham1.GetLogFile().Initialize(ss.str().c_str());
-			ss.str("");
-			ss << "SiPM_" << Ham2.GetSourceMeterChannel();
-			Ham2.GetLogFile().Initialize(ss.str().c_str());
+	// 		ss << "SiPM_" << Ham1.GetSourceMeterChannel();
+	// 		Ham1.GetLogFile().Initialize(ss.str().c_str());
+	// 		ss.str("");
+	// 		ss << "SiPM_" << Ham2.GetSourceMeterChannel();
+	// 		Ham2.GetLogFile().Initialize(ss.str().c_str());
 
-			logfile_timer = 0;
-
-
-		}
+	// 		logfile_timer = 0;
 
 
-		sleep(1);
-		meas_timer++;
-		logfile_timer++;
+	// 	}
 
-	}while(getchar() != 'q');
+
+	// 	sleep(1);
+	// 	meas_timer++;
+	// 	logfile_timer++;
+
+	// }while(getchar() != 'q');
 
 	//--------------------------SURFACE TEMPERATURE WITH PT1000--------------------------//
 	
@@ -285,6 +285,78 @@ int main(int argc, char const *argv[])
 
 
 	//----------------------------------------------------------------//
+
+	//----------------Attenuation length measurement-------------------//
+
+	Ham1.RampToBiasVoltage();
+	Ham2.RampToBiasVoltage();
+
+
+	vector<double> measure1(2,0);
+	vector<double> measure2(2,0);
+
+	// variables for the temperature control of the peltier element
+	double temp_target1 = 5;
+	double temp_target2 = 5;
+
+	int index1 = 0;
+	int index2 = 0;
+
+	int pos = 0;
+	string keypress;
+
+	double integral1 = 0;
+	double integral2 = 0;
+
+	vector<double> TempDiff1(5,0);
+	vector<double> TempDiff2(5,0);
+
+	double current1 = 0;
+	double current2 = 0;
+
+	int meas_timer = 0;
+	int Sr90_timer = 0;
+
+	do{
+
+		Peltier1.OneTempControl(TempDiff1, integral1, index1, current1, temp_target1);
+		Peltier2.OneTempControl(TempDiff2, integral2, index2, current2, temp_target2);
+
+		if (meas_timer == 1) // sleep 1 sec * 60 = measure IV every minute
+		{
+			measure1 = Ham1.MeasureIV();
+			measure2 = Ham2.MeasureIV();
+			meas_timer = 0;
+		}		
+
+		if (Sr90_timer == 60*3) // 60*3 every 3 min new logfile and move Sr90!
+		{
+			stringstream ss;			
+
+			ss << "SiPM_" << Ham1.GetSourceMeterChannel() << "_" << pos;
+			Ham1.GetLogFile().Initialize(ss.str().c_str());
+			ss.str("");
+			ss << "SiPM_" << Ham2.GetSourceMeterChannel() << "_" << pos;
+			Ham2.GetLogFile().Initialize(ss.str().c_str());
+
+			cout << "MOVE Sr90 source to next position and press any key followed by ENTER" << endl;
+			cin >> keypress;
+			pos ++;
+			Sr90_timer = 0;
+
+
+		}
+
+
+		sleep(1);
+		meas_timer++;
+		Sr90_timer++;
+
+	}while(getchar() != 'q');
+
+
+	//----------------------------------------------------------------//
+
 
 	Ham1.Close();
 	Ham2.Close();
