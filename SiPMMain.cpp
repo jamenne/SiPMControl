@@ -44,35 +44,47 @@ int main(int argc, char const *argv[])
 
 	// -------------------------MultiMeter----------------------------//	
 
-	MultiMeter MultiM;
+	MultiMeter MM1;
+	MultiMeter MM2;
 
-	int MultiMeterPad = 18;
+	int MultiMeterPad1 = 17;
+	int MultiMeterPad2 = 18;
 
-	MultiM.Initialize(masterUD, MultiMeterPad);
+	MM1.Initialize(masterUD, MultiMeterPad1);
+	MM2.Initialize(masterUD, MultiMeterPad2);
 
 
 
-	//--------------------------Pelztier----------------------------//
+	//--------------------------Pelztiere----------------------------//
 
-	int smuX_pelztier = 1;
+	int smuX_pelztier1 = 1; // channel A
+	int smuX_pelztier2 = 2; // channel B
+
 	// SourceMeter, Output, MultiMeter
-	Pelztier Peltier(SourceM, smuX_pelztier, MultiM);
+	Pelztier Peltier1(SMPelztier, smuX_pelztier1, MM1);
+	Pelztier Peltier2(SMPelztier, smuX_pelztier2, MM2);
 
 	const string voltagelimit = "0.6";
 
-	Peltier.Initialize(voltagelimit);
+	Peltier1.Initialize(voltagelimit);
+	Peltier2.Initialize(voltagelimit);
 
 
 
-	//--------------------------SiPM----------------------------//
+	//--------------------------SiPMs----------------------------//
 
-	double biasVoltage = 53.11; //Volt
+	double biasVoltage1 = 53.11; //Volt
+	double biasVoltage2 = 53.22; //Volt
 	const string currentlimit = "0.001"; //Ampere
-	int smuX_SiPM = 2;
 
-	SiPM Ham(biasVoltage, SourceM, smuX_SiPM, Peltier);
+	int smuX_SiPM1 = 1; // channel A
+	int smuX_SiPM2 = 2; // channel B
 
-	Ham.Initialize(biasVoltage, currentlimit);
+	SiPM Ham1(biasVoltage1, SMSiPM, smuX_SiPM1, Peltier1);
+	SiPM Ham2(biasVoltage2, SMSiPM, smuX_SiPM2, Peltier2);
+
+	Ham1.Initialize(currentlimit);
+	Ham2.Initialize(currentlimit);
 
 
 	//--------------------------UI Curve--------------------------//
@@ -136,37 +148,66 @@ int main(int argc, char const *argv[])
 	
 	//-------------------Current Measurement loop----------------------//
 
-	Ham.RampToBiasVoltage();
+	Ham1.RampToBiasVoltage();
+	Ham2.RampToBiasVoltage();
 
 
-	vector<double> measure(2,0);
+	vector<double> measure1(2,0);
+	vector<double> measure2(2,0);
 
 	// variables for the temperature control of the peltier element
-	double temp_target = 5;
-	int index = 0;
-	double integral = 0;
-	vector<double> TempDiff(5,0);
-	double current = 0;
+	double temp_target1 = 5;
+	double temp_target2 = 5;
+
+	int index1 = 0;
+	int index2 = 0;
+
+	double integral1 = 0;
+	double integral2 = 0;
+
+	vector<double> TempDiff1(5,0);
+	vector<double> TempDiff2(5,0);
+
+	double current1 = 0;
+	double current2 = 0;
 
 	int meas_timer = 0;
 	int logfile_timer = 0;
 
 	do{
 
-		Peltier.OneTempControl(TempDiff, integral, index, current, temp_target);
+		Peltier1.OneTempControl(TempDiff1, integral1, index1, current1, temp_target1);
+		Peltier2.OneTempControl(TempDiff2, integral2, index2, current2, temp_target2);
 
 		if (meas_timer == 1) // sleep 1 sec * 60 = measure IV every minute
 		{
-			measure = Ham.MeasureIV();
+			measure1 = Ham1.MeasureIV();
+			measure2 = Ham2.MeasureIV();
 			meas_timer = 0;
 		}		
 
 		if (logfile_timer == 45*60*24) // 60*60*24 every day a new logfile
 		{
-			Peltier.GetLogFile().Initialize("PelztierControl");
-			Ham.GetSourceMeter().GetLogFile().Initialize("SourceMeter");
-			Ham.GetLogFile().Initialize("SiPM");
+			stringstream ss;
+
+			ss << "PelztierControl_" << Peltier1.GetSourceMeterChannel();
+			Peltier1.GetLogFile().Initialize(ss.str().c_str());
+			ss.str("");
+			Ham1.GetSourceMeter().GetLogFile().Initialize("SourceMeterSiPM");
+
+			ss << "PelztierControl_" << Peltier2.GetSourceMeterChannel();
+			Peltier2.GetLogFile().Initialize(ss.str().c_str());
+			ss.str("");			
+
+			ss << "SiPM_" << Ham1.GetSourceMeterChannel();
+			Ham1.GetLogFile().Initialize(ss.str().c_str());
+			ss.str("");
+			ss << "SiPM_" << Ham2.GetSourceMeterChannel();
+			Ham2.GetLogFile().Initialize(ss.str().c_str());
+
 			logfile_timer = 0;
+
+
 		}
 
 
@@ -245,9 +286,9 @@ int main(int argc, char const *argv[])
 
 	//----------------------------------------------------------------//
 
-	Ham.Close();
+	Ham1.Close();
 
-	Peltier.Close();
+	Peltier1.Close();
 
 
 	
