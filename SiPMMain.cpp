@@ -125,7 +125,7 @@ int main(int argc, char const *argv[])
 	double current2 = 0;
 
 	// time for aclimatisation
-	for (int i = 0; i < 10; ++i)
+	for (int i = 0; i < 180; ++i)
 	{
 		Peltier1.OneTempControl(TempDiff1, integral1, index1, current1, temp_target1);
 		Peltier2.OneTempControl(TempDiff2, integral2, index2, current2, temp_target2);
