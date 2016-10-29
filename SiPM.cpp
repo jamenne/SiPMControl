@@ -42,14 +42,16 @@ SiPM::~SiPM(){
 };
 
 // Init of Peltier and SourceMeter outside of SiPM Init.
-void SiPM::Initialize(double biasVoltage, const string currentlimit){
+void SiPM::Initialize(const string currentlimit){
 
 	this->_SourceM.SelectVoltageFunction(this->_smuX);
 	this->_SourceM.SetCurrentLimit(this->_smuX,currentlimit);
 	this->_SourceM.SetOutputOnOff(this->_smuX,true);
 
-	this->_biasVoltage = biasVoltage;
-	this->_LogFile.Initialize("SiPM");
+	stringstream ss;
+	ss << "SiPM_" << this->_smuX;
+
+	this->_LogFile.Initialize(ss.str().c_str());
 	this->_LogFile.WriteString("#time\ttemperature\tcurrent\tvoltage");
 }
 

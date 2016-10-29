@@ -29,7 +29,7 @@ public:
 	LogDev& GetLogFile();
 	double GetBiasVoltage();
 
-	void Initialize(double biasVoltage, const std::string currentlimit);
+	void Initialize(const std::string currentlimit);
 	void RampToVoltage(double ramp_volt);
 	void RampToBiasVoltage();
 	void RampDownVoltage();
