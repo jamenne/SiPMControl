@@ -97,7 +97,7 @@ int main(int argc, char const *argv[])
 	int sec = now;
 
 	//--------------------------UI Curve--------------------------//
-	double startVoltage = biasVoltage1 - 1;
+	double startVoltage = biasVoltage1 - 3;
 	double endVoltage = biasVoltage1+1;
 
 	Ham1.RampToVoltage(startVoltage);
@@ -125,7 +125,7 @@ int main(int argc, char const *argv[])
 	double current2 = 0;
 
 	// time for aclimatisation
-	for (int i = 0; i < 120; ++i)
+	for (int i = 0; i < 10; ++i)
 	{
 		Peltier1.OneTempControl(TempDiff1, integral1, index1, current1, temp_target1);
 		Peltier2.OneTempControl(TempDiff2, integral2, index2, current2, temp_target2);
@@ -136,6 +136,8 @@ int main(int argc, char const *argv[])
 
 		Peltier1.OneTempControl(TempDiff1, integral1, index1, current1, temp_target1);
 		Peltier2.OneTempControl(TempDiff2, integral2, index2, current2, temp_target2);
+
+		now = time(NULL);
 
 		if (sec+120 <= now ) // measure every 2 minutes
 		{
@@ -148,14 +150,16 @@ int main(int argc, char const *argv[])
 
 			if (actualVoltage1 < endVoltage && actualVoltage2 < endVoltage)
 			{
-				Ham1.SetSourceVoltage(actualVoltage1 + 1);
-				Ham2.SetSourceVoltage(actualVoltage2 + 1);
+				Ham1.SetSourceVoltage(actualVoltage1 + 0.1);
+				Ham2.SetSourceVoltage(actualVoltage2 + 0.1);
 			}
 
 			else if(actualVoltage1 >= endVoltage || actualVoltage2 >= endVoltage){
 				cout << "Reached end of UI range!" << endl;
 				break;
 			}
+
+			sec = now;
 		}		
 
 		if (today != timeinfo->tm_mday) // every day a new logfile
