@@ -314,22 +314,22 @@ int main(int argc, char const *argv[])
 	double current1 = 0;
 	double current2 = 0;
 
-	int meas_timer = 0;
-	int Sr90_timer = 0;
+	int meas_timer = -5*60; // wait 5 min for reaching temperature
+	int Sr90_timer =-5*60; // wait 5 min for reaching temperature
 
 	do{
 
 		Peltier1.OneTempControl(TempDiff1, integral1, index1, current1, temp_target1);
 		Peltier2.OneTempControl(TempDiff2, integral2, index2, current2, temp_target2);
 
-		if (meas_timer == 1) // sleep 1 sec * 60 = measure IV every minute
+		if (meas_timer == 1) // sleep 1 sec = measure IV every second
 		{
 			measure1 = Ham1.MeasureIV();
 			measure2 = Ham2.MeasureIV();
 			meas_timer = 0;
 		}		
 
-		if (Sr90_timer == 60*3) // 60*3 every 3 min new logfile and move Sr90!
+		if (Sr90_timer == 60) // every minute new logfile and move Sr90!
 		{
 			stringstream ss;			
 
@@ -339,12 +339,14 @@ int main(int argc, char const *argv[])
 			ss << "SiPM_" << Ham2.GetSourceMeterChannel() << "_" << pos;
 			Ham2.GetLogFile().Initialize(ss.str().c_str());
 
-			cout << "MOVE Sr90 source to next position and press any key followed by ENTER" << endl;
-			cin >> keypress;
+			cout << "MOVE Sr90 source to next position and press 'c' followed by ENTER" << endl;
+			
+			while(getchar() != 'c'){
+				sleep(1);
+			}
+
 			pos ++;
 			Sr90_timer = 0;
-
-
 		}
 
 
