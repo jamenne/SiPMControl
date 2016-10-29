@@ -287,8 +287,10 @@ int main(int argc, char const *argv[])
 	//----------------------------------------------------------------//
 
 	Ham1.Close();
+	Ham2.Close();
 
 	Peltier1.Close();
+	Peltier2.Close();
 
 
 	
