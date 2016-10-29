@@ -82,6 +82,11 @@ double SiPM::GetBiasVoltage(){
 	return this->_biasVoltage;
 }
 
+int SiPM::GetSourceMeterChannel(){
+
+	return this->_smuX;
+}
+
 void SiPM::SetSourceVoltage(double set_voltage){
 	stringstream voltage;
 	voltage << set_voltage;

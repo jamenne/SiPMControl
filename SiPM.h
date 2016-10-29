@@ -28,6 +28,7 @@ public:
 	Pelztier& GetPelztier();
 	LogDev& GetLogFile();
 	double GetBiasVoltage();
+	int GetSourceMeterChannel();
 
 	void Initialize(const std::string currentlimit);
 	void RampToVoltage(double ramp_volt);
