@@ -74,7 +74,7 @@ int main(int argc, char const *argv[])
 	//--------------------------SiPMs----------------------------//
 
 	double biasVoltage1 = 53.11; //Volt
-	double biasVoltage2 = 53.22; //Volt
+	double biasVoltage2 = 53.11; //Volt
 	const string currentlimit = "0.001"; //Ampere
 
 	int smuX_SiPM1 = 1; // channel A
