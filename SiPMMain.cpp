@@ -64,7 +64,7 @@ int main(int argc, char const *argv[])
 	Pelztier Peltier1(SMPelztier, smuX_pelztier1, MM1);
 	Pelztier Peltier2(SMPelztier, smuX_pelztier2, MM2);
 
-	const string voltagelimit = "0.6";
+	const string voltagelimit = "1";
 
 	Peltier1.Initialize(voltagelimit);
 	Peltier2.Initialize(voltagelimit);
@@ -97,14 +97,108 @@ int main(int argc, char const *argv[])
 	int sec = now;
 
 	//--------------------------UI Curve--------------------------//
-	double startVoltage = biasVoltage1 - 3;
-	double endVoltage = biasVoltage1+1;
+	// double startVoltage = biasVoltage1 - 3;
+	// double endVoltage = biasVoltage1+1;
 
-	Ham1.RampToVoltage(startVoltage);
-	Ham2.RampToVoltage(startVoltage);
+	// Ham1.RampToVoltage(startVoltage);
+	// Ham2.RampToVoltage(startVoltage);
 
-	double actualVoltage1 = Ham1.MeasureV();
-	double actualVoltage2 = Ham2.MeasureV();
+	// double actualVoltage1 = Ham1.MeasureV();
+	// double actualVoltage2 = Ham2.MeasureV();
+	// vector<double> measure1(2,0);
+	// vector<double> measure2(2,0);
+
+	// // variables for the temperature control of the peltier element
+	// double temp_target1 = 0;
+	// double temp_target2 = 0;
+
+	// int index1 = 0;
+	// int index2 = 0;
+
+	// double integral1 = 0;
+	// double integral2 = 0;
+
+	// vector<double> TempDiff1(5,0);
+	// vector<double> TempDiff2(5,0);
+
+	// double current1 = 0;
+	// double current2 = 0;
+
+	// // time for aclimatisation
+	// for (int i = 0; i < 180; ++i)
+	// {
+	// 	Peltier1.OneTempControl(TempDiff1, integral1, index1, current1, temp_target1);
+	// 	Peltier2.OneTempControl(TempDiff2, integral2, index2, current2, temp_target2);
+	// 	sleep(1);
+	// }
+
+	// do{
+
+	// 	Peltier1.OneTempControl(TempDiff1, integral1, index1, current1, temp_target1);
+	// 	Peltier2.OneTempControl(TempDiff2, integral2, index2, current2, temp_target2);
+
+	// 	now = time(NULL);
+
+	// 	if (sec+120 <= now ) // measure every 2 minutes
+	// 	{
+	// 		measure1 = Ham1.MeasureIV();
+	// 		measure2 = Ham2.MeasureIV();
+	// 		actualVoltage1 = measure1[1];
+	// 		actualVoltage2 = measure2[1];
+	// 		cout << "actualVoltage1:\t" << actualVoltage1 << endl;
+	// 		cout << "actualVoltage2:\t" << actualVoltage2 << endl;
+
+	// 		if (actualVoltage1 < endVoltage && actualVoltage2 < endVoltage)
+	// 		{
+	// 			Ham1.SetSourceVoltage(actualVoltage1 + 0.1);
+	// 			Ham2.SetSourceVoltage(actualVoltage2 + 0.1);
+	// 		}
+
+	// 		else if(actualVoltage1 >= endVoltage || actualVoltage2 >= endVoltage){
+	// 			cout << "Reached end of UI range!" << endl;
+	// 			break;
+	// 		}
+
+	// 		sec = now;
+	// 	}		
+
+	// 	if (today != timeinfo->tm_mday) // every day a new logfile
+	// 	{
+	// 		stringstream ss;
+
+	// 		ss << "PelztierControl_" << Peltier1.GetSourceMeterChannel();
+	// 		Peltier1.GetLogFile().Initialize(ss.str().c_str());
+	// 		ss.str("");
+	// 		Ham1.GetSourceMeter().GetLogFile().Initialize("SourceMeterSiPM");
+
+	// 		ss << "PelztierControl_" << Peltier2.GetSourceMeterChannel();
+	// 		Peltier2.GetLogFile().Initialize(ss.str().c_str());
+	// 		ss.str("");			
+
+	// 		ss << "SiPM_" << Ham1.GetSourceMeterChannel();
+	// 		Ham1.GetLogFile().Initialize(ss.str().c_str());
+	// 		ss.str("");
+	// 		ss << "SiPM_" << Ham2.GetSourceMeterChannel();
+	// 		Ham2.GetLogFile().Initialize(ss.str().c_str());
+	// 		ss.str("");
+
+	// 		today = timeinfo->tm_mday;
+
+	// 	}
+
+
+	// 	sleep(1);
+
+	// }while(getchar() != 'q');
+
+
+	
+	//-------------------Current Measurement loop----------------------//
+
+	Ham1.RampToBiasVoltage();
+	Ham2.RampToBiasVoltage();
+
+
 	vector<double> measure1(2,0);
 	vector<double> measure2(2,0);
 
@@ -124,14 +218,6 @@ int main(int argc, char const *argv[])
 	double current1 = 0;
 	double current2 = 0;
 
-	// time for aclimatisation
-	for (int i = 0; i < 180; ++i)
-	{
-		Peltier1.OneTempControl(TempDiff1, integral1, index1, current1, temp_target1);
-		Peltier2.OneTempControl(TempDiff2, integral2, index2, current2, temp_target2);
-		sleep(1);
-	}
-
 	do{
 
 		Peltier1.OneTempControl(TempDiff1, integral1, index1, current1, temp_target1);
@@ -143,22 +229,6 @@ int main(int argc, char const *argv[])
 		{
 			measure1 = Ham1.MeasureIV();
 			measure2 = Ham2.MeasureIV();
-			actualVoltage1 = measure1[1];
-			actualVoltage2 = measure2[1];
-			cout << "actualVoltage1:\t" << actualVoltage1 << endl;
-			cout << "actualVoltage2:\t" << actualVoltage2 << endl;
-
-			if (actualVoltage1 < endVoltage && actualVoltage2 < endVoltage)
-			{
-				Ham1.SetSourceVoltage(actualVoltage1 + 0.1);
-				Ham2.SetSourceVoltage(actualVoltage2 + 0.1);
-			}
-
-			else if(actualVoltage1 >= endVoltage || actualVoltage2 >= endVoltage){
-				cout << "Reached end of UI range!" << endl;
-				break;
-			}
-
 			sec = now;
 		}		
 
@@ -180,89 +250,15 @@ int main(int argc, char const *argv[])
 			ss.str("");
 			ss << "SiPM_" << Ham2.GetSourceMeterChannel();
 			Ham2.GetLogFile().Initialize(ss.str().c_str());
-			ss.str("");
 
 			today = timeinfo->tm_mday;
 
-		}
 
+		}
 
 		sleep(1);
 
 	}while(getchar() != 'q');
-
-
-	
-	//-------------------Current Measurement loop----------------------//
-
-	// Ham1.RampToBiasVoltage();
-	// Ham2.RampToBiasVoltage();
-
-
-	// vector<double> measure1(2,0);
-	// vector<double> measure2(2,0);
-
-	// // variables for the temperature control of the peltier element
-	// double temp_target1 = 5;
-	// double temp_target2 = 5;
-
-	// int index1 = 0;
-	// int index2 = 0;
-
-	// double integral1 = 0;
-	// double integral2 = 0;
-
-	// vector<double> TempDiff1(5,0);
-	// vector<double> TempDiff2(5,0);
-
-	// double current1 = 0;
-	// double current2 = 0;
-
-	// int meas_timer = 0;
-	// int logfile_timer = 0;
-
-	// do{
-
-	// 	Peltier1.OneTempControl(TempDiff1, integral1, index1, current1, temp_target1);
-	// 	Peltier2.OneTempControl(TempDiff2, integral2, index2, current2, temp_target2);
-
-	// 	if (meas_timer == 1) // sleep 1 sec * 60 = measure IV every minute
-	// 	{
-	// 		measure1 = Ham1.MeasureIV();
-	// 		measure2 = Ham2.MeasureIV();
-	// 		meas_timer = 0;
-	// 	}		
-
-	// 	if (logfile_timer == 45*60*24) // 60*60*24 every day a new logfile
-	// 	{
-	// 		stringstream ss;
-
-	// 		ss << "PelztierControl_" << Peltier1.GetSourceMeterChannel();
-	// 		Peltier1.GetLogFile().Initialize(ss.str().c_str());
-	// 		ss.str("");
-	// 		Ham1.GetSourceMeter().GetLogFile().Initialize("SourceMeterSiPM");
-
-	// 		ss << "PelztierControl_" << Peltier2.GetSourceMeterChannel();
-	// 		Peltier2.GetLogFile().Initialize(ss.str().c_str());
-	// 		ss.str("");			
-
-	// 		ss << "SiPM_" << Ham1.GetSourceMeterChannel();
-	// 		Ham1.GetLogFile().Initialize(ss.str().c_str());
-	// 		ss.str("");
-	// 		ss << "SiPM_" << Ham2.GetSourceMeterChannel();
-	// 		Ham2.GetLogFile().Initialize(ss.str().c_str());
-
-	// 		logfile_timer = 0;
-
-
-	// 	}
-
-
-	// 	sleep(1);
-	// 	meas_timer++;
-	// 	logfile_timer++;
-
-	// }while(getchar() != 'q');
 
 	//--------------------------SURFACE TEMPERATURE WITH PT1000--------------------------//
 	
