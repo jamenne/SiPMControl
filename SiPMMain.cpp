@@ -189,7 +189,7 @@ void UICurve(SiPM &Ham1, SiPM &Ham2, Pelztier &Peltier1, Pelztier &Peltier2){ //
 
 }
 
-void AttenuationMeasurement(SiPM &Ham1, SiPM &Ham2, Pelztier &Peltier1, Pelztier &Peltier2){
+void AttenuationMeasurement(SiPM &Ham1, SiPM &Ham2, Pelztier &Peltier1, Pelztier &Peltier2){ // needs to be tested again
 
 	//------current date for Logfiles and time for measurements------//
 
@@ -299,8 +299,8 @@ void InsituMeasuremnt(SiPM &Ham1, SiPM &Ham2, Pelztier &Peltier1, Pelztier &Pelt
 	vector<double> measure2(2,0);
 
 	// variables for the temperature control of the peltier element
-	double temp_target1 = 5;
-	double temp_target2 = 5;
+	double temp_target1 = 0;
+	double temp_target2 = 0;
 
 	int index1 = 0;
 	int index2 = 0;
