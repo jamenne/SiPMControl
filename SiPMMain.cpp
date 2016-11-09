@@ -164,19 +164,24 @@ void UICurve(SiPM &Ham1, SiPM &Ham2, Pelztier &Peltier1, Pelztier &Peltier2){ //
 
 			ss << "PelztierControl_" << Peltier1.GetSourceMeterChannel();
 			Peltier1.GetLogFile().Initialize(ss.str().c_str());
+			Peltier1.GetLogFile().WriteString("#date\ttemp\tcurrent\tvoltage");
 			ss.str("");
-			Ham1.GetSourceMeter().GetLogFile().Initialize("SourceMeterSiPM");
 
 			ss << "PelztierControl_" << Peltier2.GetSourceMeterChannel();
 			Peltier2.GetLogFile().Initialize(ss.str().c_str());
+			Peltier2.GetLogFile().WriteString("#date\ttemp\tcurrent\tvoltage");
 			ss.str("");			
 
 			ss << "SiPM_" << Ham1.GetSourceMeterChannel();
 			Ham1.GetLogFile().Initialize(ss.str().c_str());
+			Ham1.GetLogFile().WriteString("#time\ttemperature\tcurrent\tvoltage");
 			ss.str("");
 			ss << "SiPM_" << Ham2.GetSourceMeterChannel();
 			Ham2.GetLogFile().Initialize(ss.str().c_str());
+			Ham2.GetLogFile().WriteString("#time\ttemperature\tcurrent\tvoltage");
 			ss.str("");
+
+			Ham1.GetSourceMeter().GetLogFile().Initialize("SourceMeterSiPM");
 
 			today = timeinfo->tm_mday;
 
@@ -255,9 +260,11 @@ void AttenuationMeasurement(SiPM &Ham1, SiPM &Ham2, Pelztier &Peltier1, Pelztier
 
 			ss << "SiPM_" << Ham1.GetSourceMeterChannel() << "_" << pos;
 			Ham1.GetLogFile().Initialize(ss.str().c_str());
+			Ham1.GetLogFile().WriteString("#time\ttemperature\tcurrent\tvoltage");
 			ss.str("");
 			ss << "SiPM_" << Ham2.GetSourceMeterChannel() << "_" << pos;
 			Ham2.GetLogFile().Initialize(ss.str().c_str());
+			Ham2.GetLogFile().WriteString("#time\ttemperature\tcurrent\tvoltage");
 
 			cout << "MOVE Sr90 source to next position and press 'c' followed by ENTER" << endl;
 			
@@ -334,18 +341,25 @@ void InsituMeasuremnt(SiPM &Ham1, SiPM &Ham2, Pelztier &Peltier1, Pelztier &Pelt
 
 			ss << "PelztierControl_" << Peltier1.GetSourceMeterChannel();
 			Peltier1.GetLogFile().Initialize(ss.str().c_str());
+			Peltier1.GetLogFile().WriteString("#date\ttemp\tcurrent\tvoltage");
 			ss.str("");
-			Ham1.GetSourceMeter().GetLogFile().Initialize("SourceMeterSiPM");
 
 			ss << "PelztierControl_" << Peltier2.GetSourceMeterChannel();
 			Peltier2.GetLogFile().Initialize(ss.str().c_str());
+			Peltier2.GetLogFile().WriteString("#date\ttemp\tcurrent\tvoltage");
 			ss.str("");			
 
 			ss << "SiPM_" << Ham1.GetSourceMeterChannel();
 			Ham1.GetLogFile().Initialize(ss.str().c_str());
+			Ham1.GetLogFile().WriteString("#time\ttemperature\tcurrent\tvoltage");
 			ss.str("");
 			ss << "SiPM_" << Ham2.GetSourceMeterChannel();
 			Ham2.GetLogFile().Initialize(ss.str().c_str());
+			Ham2.GetLogFile().WriteString("#time\ttemperature\tcurrent\tvoltage");
+			ss.str("");
+
+			Ham1.GetSourceMeter().GetLogFile().Initialize("SourceMeterSiPM");
+			Peltier1.GetSourceMeter().GetLogFile().Initialize("SourceMeterPeltiers");
 
 			today = timeinfo->tm_mday;
 
