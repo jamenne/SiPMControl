@@ -283,9 +283,9 @@ void AttenuationMeasurement(SiPM &Ham1, SiPM &Ham2, Pelztier &Peltier1, Pelztier
 
 }
 
-void InsituMeasuremnt(SiPM &Ham1, SiPM &Ham2, Pelztier &Peltier1, Pelztier &Peltier2){
+void InsituMeasurement(SiPM &Ham1, SiPM &Ham2, Pelztier &Peltier1, Pelztier &Peltier2){
 
-	//------current date for Logfiles and time for measurements------//
+	//--------- current date for Logfiles and time for measurements ---------//
 
 	time_t now = time(NULL);
 
@@ -296,19 +296,22 @@ void InsituMeasuremnt(SiPM &Ham1, SiPM &Ham2, Pelztier &Peltier1, Pelztier &Pelt
 	int sec = now;
 
 	
-	//-------------------Insitu Measurement loop----------------------//
+	//---------------------- Measurement loop -------------------------//
 
 	Ham1.RampToBiasVoltage();
 	Ham2.RampToBiasVoltage();
 
+	// measurement interval for IV measurement
+	int measinterval = 2 //seconds
 
 	vector<double> measure1(2,0);
 	vector<double> measure2(2,0);
 
-	// variables for the temperature control of the peltier element
+	// target temperature of SiPMs
 	double temp_target1 = 0;
 	double temp_target2 = 0;
 
+	// variables for the temperature control of the peltier element
 	int index1 = 0;
 	int index2 = 0;
 
@@ -321,6 +324,7 @@ void InsituMeasuremnt(SiPM &Ham1, SiPM &Ham2, Pelztier &Peltier1, Pelztier &Pelt
 	double current1 = 0;
 	double current2 = 0;
 
+	// do-while loop: exit by hitting 'q' followed by 'ENTER'
 	do{
 
 		Peltier1.OneTempControl(TempDiff1, integral1, index1, current1, temp_target1);
@@ -328,11 +332,14 @@ void InsituMeasuremnt(SiPM &Ham1, SiPM &Ham2, Pelztier &Peltier1, Pelztier &Pelt
 
 		now = time(NULL);
 
-		if (sec+120 <= now ) // measure every 2 minutes
+		if (sec+measinterval <= now ) // measure every 2 minutes / 5 times
 		{
-			measure1 = Ham1.MeasureIV();
-			measure2 = Ham2.MeasureIV();
-			sec = now;
+			for (int i = 0; i < 5; i++)
+			{
+				measure1 = Ham1.MeasureIV();
+				measure2 = Ham2.MeasureIV();
+				sec = now;
+			}
 		}		
 
 		if (today != timeinfo->tm_mday) // every day a new logfile
@@ -440,9 +447,58 @@ int main(int argc, char const *argv[])
 	Ham1.Initialize(currentlimit);
 	Ham2.Initialize(currentlimit);
 
+	//------------------Select Measurement from above--------------------//
 
-	InsituMeasuremnt(Ham1, Ham2, Peltier1, Peltier2);
+
+	int measurementtype
+
+	cout << "-----------------------INSTRUCTIONS-----------------------" << endl;
+	cout << "To START measurement hit 's' and press 'ENTER'." << endl;
+	cout << "STOP measurement or programm by entering 'q' and 'ENTER'." << endl;
 	
+
+	while(getchar() != 'q' || 's'){
+				sleep(1);
+			}
+
+	if (getchar() == 'q')
+	{
+		//---------------------------Close devices---------------------------//
+
+		cout << "Exiting program..." << endl;
+
+		Ham1.Close();
+		Ham2.Close();
+
+		Peltier1.Close();
+		Peltier2.Close();
+
+		return 0;
+	}
+
+	if (getchar() == 's')
+	{
+		cout << "Choose a measurement:" << endl;
+		cout << "Insitu Measurement: '1' + 'ENTER'" << endl;
+		cout << "UI Curve: '2' +'ENTER' " << endl;
+		cin >> measurementtype;
+
+		if (measurementtype == 1)
+		{
+			InsituMeasurement(Ham1, Ham2, Peltier1, Peltier2);
+		}
+
+		else if (measurementtype == 2)
+		{
+			UICurve(Ham1, Ham2, Peltier1, Peltier2);
+		}
+
+		else{
+			cout << "Exiting program..." << endl;
+			continue;
+		}
+	}
+
 
 	//---------------------------Close devices---------------------------//
 
@@ -451,8 +507,6 @@ int main(int argc, char const *argv[])
 
 	Peltier1.Close();
 	Peltier2.Close();
-
-
 	
 	return 0;
 }
