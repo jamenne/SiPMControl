@@ -107,6 +107,7 @@ void SiPM::RampToVoltage(double ramp_volt){
 	stringstream voltage;
 
 	double actualvoltage = this->MeasureV();
+	double actualcurrent = this->MeasureI();
 
 	while(ramp_volt != actualvoltage){
 
@@ -132,6 +133,7 @@ void SiPM::RampToVoltage(double ramp_volt){
 				this->_SourceM.SetSourceVoltage(this->_smuX, voltage.str());
 				voltage.str("");
 				actualvoltage = this->MeasureV();
+				actualcurrent = this->MeasureI();
 				break;
 			}
 
@@ -139,6 +141,7 @@ void SiPM::RampToVoltage(double ramp_volt){
 
 		sleep(2);
 		actualvoltage = this->MeasureV();
+		actualcurrent = this->MeasureI();
 	}
 
 }
@@ -152,8 +155,9 @@ void SiPM::RampToBiasVoltage(){
 	this->_SourceM.GetLogFile().Write(out.str());
 
 	stringstream voltage;
-
+	
 	double actualvoltage = this->MeasureV();
+	double actualcurrent = this->MeasureI();
 
 	while(_biasVoltage != actualvoltage){
 
@@ -179,6 +183,7 @@ void SiPM::RampToBiasVoltage(){
 				this->_SourceM.SetSourceVoltage(this->_smuX, voltage.str());
 				voltage.str("");
 				actualvoltage = this->MeasureV();
+				actualcurrent = this->MeasureI();
 				break;
 			}
 
@@ -186,6 +191,7 @@ void SiPM::RampToBiasVoltage(){
 
 		sleep(2);
 		actualvoltage = this->MeasureV();
+		actualcurrent = this->MeasureI();
 	}
 
 }
@@ -203,6 +209,7 @@ void SiPM::RampDownVoltage(){
 	this->_biasVoltage = 0;
 
 	double actualvoltage = this->MeasureV();
+	double actualcurrent = this->MeasureI();
 
 	while(_biasVoltage != actualvoltage){
 
@@ -228,6 +235,7 @@ void SiPM::RampDownVoltage(){
 				this->_SourceM.SetSourceVoltage(this->_smuX, voltage.str());
 				voltage.str("");
 				actualvoltage = this->MeasureV();
+				actualcurrent = this->MeasureI();
 				break;
 			}
 
@@ -235,6 +243,7 @@ void SiPM::RampDownVoltage(){
 
 		sleep(2);
 		actualvoltage = this->MeasureV();
+		actualcurrent = this->MeasureI();
 	}
 
 }
