@@ -79,7 +79,7 @@ void SurfaceTemp(MultiMeter &MultiM2, SiPM &Ham){
 
 }
 
-void UICurve(SiPM &Ham1, SiPM &Ham2, Pelztier &Peltier1, Pelztier &Peltier2){ // needs to be tested again
+void UICurve(SiPM &Ham1, SiPM &Ham2, Pelztier &Peltier1, Pelztier &Peltier2){ 
 
 	//------current date for Logfiles and time for measurements------//
 
@@ -94,7 +94,7 @@ void UICurve(SiPM &Ham1, SiPM &Ham2, Pelztier &Peltier1, Pelztier &Peltier2){ //
 
 	//--------------------------UI Curve--------------------------//
 	double startVoltage = Ham1.GetBiasVoltage() - 3;
-	double endVoltage = Ham1.GetBiasVoltage() + 1;
+	double endVoltage = Ham1.GetBiasVoltage() + 2.5;
 
 	Ham1.RampToVoltage(startVoltage);
 	Ham2.RampToVoltage(startVoltage);
@@ -105,8 +105,8 @@ void UICurve(SiPM &Ham1, SiPM &Ham2, Pelztier &Peltier1, Pelztier &Peltier2){ //
 	vector<double> measure2(2,0);
 
 	// variables for the temperature control of the peltier element
-	double temp_target1 = 0;
-	double temp_target2 = 0;
+	double temp_target1 = 5;
+	double temp_target2 = 5;
 
 	int index1 = 0;
 	int index2 = 0;
@@ -121,7 +121,7 @@ void UICurve(SiPM &Ham1, SiPM &Ham2, Pelztier &Peltier1, Pelztier &Peltier2){ //
 	double current2 = 0;
 
 	// time for aclimatisation
-	for (int i = 0; i < 180; ++i)
+	for (int i = 0; i < 360; ++i)
 	{
 		Peltier1.OneTempControl(TempDiff1, integral1, index1, current1, temp_target1);
 		Peltier2.OneTempControl(TempDiff2, integral2, index2, current2, temp_target2);
@@ -214,8 +214,8 @@ void AttenuationMeasurement(SiPM &Ham1, SiPM &Ham2, Pelztier &Peltier1, Pelztier
 	vector<double> measure2(2,0);
 
 	// variables for the temperature control of the peltier element
-	double temp_target1 = 5;
-	double temp_target2 = 5;
+	double temp_target1 = 10;
+	double temp_target2 = 10;
 
 	int index1 = 0;
 	int index2 = 0;
@@ -302,7 +302,7 @@ void InsituMeasurement(SiPM &Ham1, SiPM &Ham2, Pelztier &Peltier1, Pelztier &Pel
 	Ham2.RampToBiasVoltage();
 
 	// measurement interval for IV measurement
-	int measinterval = 2 //seconds
+	int measinterval = 30; //seconds
 
 	vector<double> measure1(2,0);
 	vector<double> measure2(2,0);
@@ -334,12 +334,10 @@ void InsituMeasurement(SiPM &Ham1, SiPM &Ham2, Pelztier &Peltier1, Pelztier &Pel
 
 		if (sec+measinterval <= now ) // measure every 2 minutes / 5 times
 		{
-			for (int i = 0; i < 5; i++)
-			{
-				measure1 = Ham1.MeasureIV();
-				measure2 = Ham2.MeasureIV();
-				sec = now;
-			}
+			measure1 = Ham1.MeasureIV();
+			measure2 = Ham2.MeasureIV();
+			sec = now;
+			
 		}		
 
 		if (today != timeinfo->tm_mday) // every day a new logfile
@@ -450,55 +448,18 @@ int main(int argc, char const *argv[])
 	//------------------Select Measurement from above--------------------//
 
 
-	int measurementtype
+	int measurementtype;
 
 	cout << "-----------------------INSTRUCTIONS-----------------------" << endl;
 	cout << "To START measurement hit 's' and press 'ENTER'." << endl;
-	cout << "STOP measurement or programm by entering 'q' and 'ENTER'." << endl;
+	cout << "STOP measurement and programm by entering 'q' and 'ENTER'." << endl;
 	
-
-	while(getchar() != 'q' || 's'){
-				sleep(1);
-			}
-
-	if (getchar() == 'q')
-	{
-		//---------------------------Close devices---------------------------//
-
-		cout << "Exiting program..." << endl;
-
-		Ham1.Close();
-		Ham2.Close();
-
-		Peltier1.Close();
-		Peltier2.Close();
-
-		return 0;
+	while(getchar() != 's'){
+		sleep(1);
 	}
 
-	if (getchar() == 's')
-	{
-		cout << "Choose a measurement:" << endl;
-		cout << "Insitu Measurement: '1' + 'ENTER'" << endl;
-		cout << "UI Curve: '2' +'ENTER' " << endl;
-		cin >> measurementtype;
-
-		if (measurementtype == 1)
-		{
-			InsituMeasurement(Ham1, Ham2, Peltier1, Peltier2);
-		}
-
-		else if (measurementtype == 2)
-		{
-			UICurve(Ham1, Ham2, Peltier1, Peltier2);
-		}
-
-		else{
-			cout << "Exiting program..." << endl;
-			continue;
-		}
-	}
-
+	InsituMeasurement(Ham1, Ham2, Peltier1, Peltier2);
+	//UICurve(Ham1, Ham2, Peltier1, Peltier2);
 
 	//---------------------------Close devices---------------------------//
 
